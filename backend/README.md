@@ -248,17 +248,7 @@ backend/test-app/
 └── README.md
 ```
 
-### $${\color{green}6. \space Evaluation \space Criteria}$$
-
-We evaluate your submission holistically across these areas:
-
-- **Architecture** — How you structure the codebase, separate concerns, and design entities
-- **API Design** — RESTful conventions, validation, error handling, response consistency
-- **Security** — Authentication flow, route protection, how you handle sensitive data
-- **Reliability** — How your code behaves under edge cases and unexpected conditions
-- **Code Quality** — TypeScript usage, organization, documentation, and whether it runs out of the box
-
-### $${\color{blue}7. \space Setup \space Instructions}$$
+### $${\color{blue}6. \space Setup \space Instructions}$$
 
 #### $${\color{orange}Setup \space and \space Run:}$$
 
