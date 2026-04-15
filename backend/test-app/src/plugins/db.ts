@@ -1,5 +1,3 @@
-import { FastifyInstance } from 'fastify';
-import fp from 'fastify-plugin';
 import { DataSource } from 'typeorm';
 import { config } from '../config';
 
