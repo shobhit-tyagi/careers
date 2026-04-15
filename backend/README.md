@@ -44,136 +44,15 @@ Build a REST API with these resources:
 
 #### $${\color{orange}Entity \space Design:}$$
 
-```typescript
-// Required TypeORM entities
+Design and implement the following TypeORM entities with appropriate column types, relations, and constraints:
 
-@Entity()
-class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+- **User** — email (unique), password hash, total points, display name, timestamps
+- **Challenge** — title, artist, description, points value, duration in seconds, difficulty (easy/medium/hard), active status, timestamp
+- **ChallengeCompletion** — links a user to a challenge, tracks points earned and listen duration percentage, timestamp
+- **Reward** — name, description, points cost, availability status
+- **RewardRedemption** — links a user to a reward, tracks points spent, status (pending/fulfilled/cancelled), timestamp
 
-  @Column({ unique: true })
-  email: string;
-
-  @Column()
-  passwordHash: string;
-
-  @Column({ default: 0 })
-  totalPoints: number;
-
-  @Column({ nullable: true })
-  displayName: string;
-
-  @OneToMany(() => ChallengeCompletion, (c) => c.user)
-  completions: ChallengeCompletion[];
-
-  @OneToMany(() => RewardRedemption, (r) => r.user)
-  redemptions: RewardRedemption[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-}
-
-@Entity()
-class Challenge {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column()
-  title: string;
-
-  @Column()
-  artist: string;
-
-  @Column()
-  description: string;
-
-  @Column()
-  points: number;
-
-  @Column()
-  durationSeconds: number;
-
-  @Column({ type: 'enum', enum: ['easy', 'medium', 'hard'] })
-  difficulty: 'easy' | 'medium' | 'hard';
-
-  @Column({ default: true })
-  isActive: boolean;
-
-  @OneToMany(() => ChallengeCompletion, (c) => c.challenge)
-  completions: ChallengeCompletion[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-}
-
-@Entity()
-class ChallengeCompletion {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @ManyToOne(() => User, (u) => u.completions)
-  user: User;
-
-  @ManyToOne(() => Challenge, (c) => c.completions)
-  challenge: Challenge;
-
-  @Column()
-  pointsEarned: number;
-
-  @Column({ type: 'float' })
-  listenDurationPercent: number; // 0-100
-
-  @CreateDateColumn()
-  completedAt: Date;
-}
-
-@Entity()
-class Reward {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column()
-  name: string;
-
-  @Column()
-  description: string;
-
-  @Column()
-  pointsCost: number;
-
-  @Column({ default: true })
-  isAvailable: boolean;
-}
-
-@Entity()
-class RewardRedemption {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @ManyToOne(() => User, (u) => u.redemptions)
-  user: User;
-
-  @ManyToOne(() => Reward)
-  reward: Reward;
-
-  @Column()
-  pointsSpent: number;
-
-  @Column({
-    type: 'enum',
-    enum: ['pending', 'fulfilled', 'cancelled'],
-    default: 'pending',
-  })
-  status: 'pending' | 'fulfilled' | 'cancelled';
-
-  @CreateDateColumn()
-  redeemedAt: Date;
-}
-```
+Set up proper relations between entities (e.g. a user has many completions, a challenge has many completions, etc.).
 
 #### $${\color{orange}Route \space Architecture:}$$
 
@@ -209,75 +88,21 @@ GET    /api/leaderboard/me        // Current user's rank
 
 #### $${\color{orange}Service \space Layer:}$$
 
-```typescript
-// Required services — business logic separated from route handlers
+Separate business logic from route handlers. Implement services for:
 
-interface AuthService {
-  register(
-    email: string,
-    password: string,
-    displayName?: string,
-  ): Promise<{ user: User; tokens: TokenPair }>;
-  login(email: string, password: string): Promise<TokenPair>;
-  refresh(refreshToken: string): Promise<TokenPair>;
-  logout(refreshToken: string): Promise<void>;
-}
+- **AuthService** — registration, login, token refresh, logout
+- **ChallengeService** — list (paginated/filterable), get by ID, complete a challenge
+- **RewardService** — list available rewards, redeem a reward, get redemption history
+- **LeaderboardService** — get top fans ranked by points, get a user's rank
 
-interface ChallengeService {
-  list(
-    options: PaginationOptions & { difficulty?: string; isActive?: boolean },
-  ): Promise<PaginatedResult<Challenge>>;
-  getById(id: string): Promise<Challenge>;
-  complete(
-    userId: string,
-    challengeId: string,
-    listenDurationPercent: number,
-  ): Promise<ChallengeCompletion>;
-}
+#### $${\color{orange}Authentication:}$$
 
-interface RewardService {
-  list(): Promise<Reward[]>;
-  redeem(userId: string, rewardId: string): Promise<RewardRedemption>;
-  getHistory(userId: string): Promise<RewardRedemption[]>;
-}
+Implement JWT-based authentication with:
 
-interface LeaderboardService {
-  getTopFans(limit: number, offset: number): Promise<LeaderboardEntry[]>;
-  getUserRank(userId: string): Promise<{ rank: number; totalPoints: number }>;
-}
-
-interface TokenPair {
-  accessToken: string; // Short-lived (15 min)
-  refreshToken: string; // Long-lived (7 days)
-}
-```
-
-#### $${\color{orange}Authentication \space Middleware:}$$
-
-```typescript
-// JWT auth as a Fastify plugin/decorator
-
-// Access tokens: signed JWT with userId, short expiry (15 min)
-// Refresh tokens: opaque or JWT, stored in DB, long expiry (7 days)
-// Auth guard: Fastify preHandler hook that verifies token and decorates request with user
-
-// Password hashing: bcrypt with appropriate salt rounds
-// Token signing: RS256 or HS256 with secure secret
-
-fastify.decorateRequest('user', null);
-
-const authGuard: preHandlerHookHandler = async (request, reply) => {
-  const token = request.headers.authorization?.replace('Bearer ', '');
-  if (!token) return reply.code(401).send({ error: 'Unauthorized' });
-
-  try {
-    const payload = verifyAccessToken(token);
-    request.user = payload;
-  } catch {
-    return reply.code(401).send({ error: 'Invalid or expired token' });
-  }
-};
-```
+- **Access tokens** — short-lived, used to authenticate API requests
+- **Refresh tokens** — long-lived, used to obtain new access tokens
+- **Auth guard** — middleware that protects routes and identifies the current user
+- **Password security** — hash passwords before storing
 
 ### $${\color{blue}3. \space API \space Design \space Standards}$$
 
@@ -305,132 +130,31 @@ const authGuard: preHandlerHookHandler = async (request, reply) => {
 // 403 Forbidden, 404 Not Found, 409 Conflict, 422 Unprocessable Entity
 ```
 
-#### $${\color{orange}Validation \space with \space Typebox:}$$
+#### $${\color{orange}Validation:}$$
 
-```typescript
-import { Type, Static } from '@sinclair/typebox';
+All endpoints should validate input. Use JSON Schema or Typebox for request validation in Fastify.
 
-const RegisterBody = Type.Object({
-  email: Type.String({ format: 'email' }),
-  password: Type.String({ minLength: 8 }),
-  displayName: Type.Optional(Type.String({ minLength: 1, maxLength: 50 })),
-});
+### $${\color{blue}4. \space Business \space Rules}$$
 
-type RegisterBodyType = Static<typeof RegisterBody>;
+#### $${\color{orange}A) \space Challenge \space Completion}$$
 
-// Fastify route with schema validation
-fastify.post<{ Body: RegisterBodyType }>(
-  '/api/auth/register',
-  {
-    schema: { body: RegisterBody },
-  },
-  async (request, reply) => {
-    const result = await authService.register(
-      request.body.email,
-      request.body.password,
-      request.body.displayName,
-    );
-    return reply.code(201).send({ data: result });
-  },
-);
-```
+- Points are awarded based on how much of the challenge the user listened to (listen duration percentage, 0-100)
+- Minimum **80% listen** required to earn full points
+- Below 80%, partial credit is awarded proportionally
+- A user can complete the same challenge multiple times (each is a separate record)
+- The user's total points should be updated accordingly
 
-### $${\color{blue}4. \space Specific \space Implementation \space Details}$$
+#### $${\color{orange}B) \space Reward \space Redemption}$$
 
-#### $${\color{orange}A) \space Challenge \space Completion \space Logic}$$
+- A user spends points to redeem a reward
+- The user must have enough points — if not, return an error
+- Points are deducted and a redemption record is created
+- Consider what happens if multiple requests come in at the same time for the same user
 
-```typescript
-// Points are awarded based on listen duration percentage
-// Minimum 80% listen required for full points
-// Partial credit: (listenPercent / 80) * challenge.points, capped at challenge.points
-// A user can complete the same challenge multiple times (earn points each time)
-// Each completion is a separate record
+#### $${\color{orange}C) \space Leaderboard}$$
 
-async complete(
-  userId: string,
-  challengeId: string,
-  listenDurationPercent: number,
-): Promise<ChallengeCompletion> {
-  const challenge = await this.challengeRepo.findOneOrFail({ where: { id: challengeId, isActive: true } });
-
-  const earnedPoints = Math.min(
-    challenge.points,
-    Math.floor((listenDurationPercent / 80) * challenge.points),
-  );
-
-  const completion = this.completionRepo.create({
-    user: { id: userId },
-    challenge: { id: challengeId },
-    pointsEarned: earnedPoints,
-    listenDurationPercent,
-  });
-
-  await this.completionRepo.save(completion);
-  await this.userRepo.increment({ id: userId }, 'totalPoints', earnedPoints);
-
-  return completion;
-}
-```
-
-#### $${\color{orange}B) \space Reward \space Redemption \space Logic}$$
-
-```typescript
-// Atomic operation: check points, deduct, create redemption
-// Must handle race conditions (use transactions)
-
-async redeem(userId: string, rewardId: string): Promise<RewardRedemption> {
-  return this.dataSource.transaction(async (manager) => {
-    const user = await manager.findOneOrFail(User, {
-      where: { id: userId },
-      lock: { mode: 'pessimistic_write' },
-    });
-
-    const reward = await manager.findOneOrFail(Reward, {
-      where: { id: rewardId, isAvailable: true },
-    });
-
-    if (user.totalPoints < reward.pointsCost) {
-      throw new InsufficientPointsError(reward.pointsCost - user.totalPoints);
-    }
-
-    user.totalPoints -= reward.pointsCost;
-    await manager.save(user);
-
-    const redemption = manager.create(RewardRedemption, {
-      user: { id: userId },
-      reward: { id: rewardId },
-      pointsSpent: reward.pointsCost,
-      status: 'pending',
-    });
-
-    return manager.save(redemption);
-  });
-}
-```
-
-#### $${\color{orange}C) \space Leaderboard \space Query}$$
-
-```typescript
-// Efficient leaderboard using a ranked query
-// Should handle ties and return consistent ordering
-
-async getTopFans(limit: number, offset: number): Promise<LeaderboardEntry[]> {
-  const result = await this.userRepo
-    .createQueryBuilder('user')
-    .select([
-      'user.id',
-      'user.displayName',
-      'user.totalPoints',
-      'RANK() OVER (ORDER BY user.totalPoints DESC) as rank',
-    ])
-    .orderBy('user.totalPoints', 'DESC')
-    .limit(limit)
-    .offset(offset)
-    .getRawMany();
-
-  return result;
-}
-```
+- Returns fans ranked by total points, with pagination
+- Should handle ties gracefully
 
 #### $${\color{orange}D) \space Seed \space Data}$$
 
@@ -517,10 +241,6 @@ backend/test-app/
 │   │   └── db.ts                 # TypeORM Fastify plugin
 │   ├── types/
 │   │   └── index.ts              # Shared types and interfaces
-│   ├── tests/
-│   │   ├── auth.test.ts
-│   │   ├── challenges.test.ts
-│   │   └── rewards.test.ts
 │   └── app.ts                    # Fastify app setup
 ├── docker-compose.yml            # PostgreSQL for local dev
 ├── package.json
@@ -530,37 +250,13 @@ backend/test-app/
 
 ### $${\color{green}6. \space Evaluation \space Criteria}$$
 
-#### $${\color{blue}Architecture \space (40 \space percent)}$$
+We evaluate your submission holistically across these areas:
 
-- Proper service layer separation from route handlers
-- TypeORM entity design with correct relations and migrations
-- Clean Fastify plugin/route registration
-- Proper TypeScript typing throughout
-- Transaction handling for atomic operations
-
-#### $${\color{orange}API \space Design \space (25 \space percent)}$$
-
-- RESTful conventions and proper HTTP status codes
-- Consistent request/response envelope
-- Input validation with JSON Schema / Typebox
-- Pagination, filtering, and sorting
-- Meaningful error responses with error codes
-
-#### $${\color{purple}Security \space (20 \space percent)}$$
-
-- JWT access/refresh token flow
-- Password hashing with bcrypt
-- Auth middleware protecting routes
-- Input sanitization and SQL injection prevention
-- Rate limiting on auth endpoints
-
-#### $${\color{red}Code \space Quality \space (15 \space percent)}$$
-
-- TypeScript strict mode, no `any` types
-- Test coverage for critical paths (auth, rewards redemption)
-- Clean error handling with custom error classes
-- Code organization and naming conventions
-- Docker Compose setup that works out of the box
+- **Architecture** — How you structure the codebase, separate concerns, and design entities
+- **API Design** — RESTful conventions, validation, error handling, response consistency
+- **Security** — Authentication flow, route protection, how you handle sensitive data
+- **Reliability** — How your code behaves under edge cases and unexpected conditions
+- **Code Quality** — TypeScript usage, organization, documentation, and whether it runs out of the box
 
 ### $${\color{blue}7. \space Setup \space Instructions}$$
 
@@ -637,26 +333,12 @@ npm run test:coverage
    - Leaderboard ranking
    - Test suite running
 
-#### $${\color{green}Code \space Quality \space Checklist:}$$
+#### $${\color{green}Before \space Submitting:}$$
 
-- [ ] TypeScript strict mode enabled
-- [ ] No `any` types (except temporary with TODO comments)
-- [ ] All routes have JSON Schema validation
-- [ ] Auth middleware on all protected routes
-- [ ] Transactions for atomic operations (reward redemption)
-- [ ] Tests for auth flow and reward redemption
-- [ ] Docker Compose runs cleanly from scratch
-
-#### $${\color{orange}Testing \space Scenarios:}$$
-
-- [ ] Register a new user and receive tokens
-- [ ] Login and access protected routes
-- [ ] Complete a challenge and verify points update
-- [ ] Redeem a reward and verify points deduction
-- [ ] Attempt redemption with insufficient points (expect error)
-- [ ] Leaderboard returns correct ranking
-- [ ] Expired token returns 401
-- [ ] Invalid input returns 400 with validation errors
+- [ ] `docker compose up && npm run migration:run && npm run dev` works from scratch
+- [ ] All endpoints function as described
+- [ ] Auth flow works end-to-end
+- [ ] TypeScript compiles with no errors
 
 #### $${\color{purple}Timeline:}$$
 
