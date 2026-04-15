@@ -92,27 +92,25 @@ Apply to careers@getbelong.app with your resume, portfolio, and references to fr
 
 ### $${\color{green}🚀 \space Backend \space Developer \space (Node.js/TypeScript)}$$
 
-(Note: Assuming "Backend React Developer" refers to our backend stack, which uses TypeScript/Node.js with Fastify—let me know if this needs adjustment!)  
-
-We're looking for a Backend Developer to scale our robust API that powers Belong's core features, from fan data aggregation to secure financial transactions.
+We're looking for a Backend Developer to scale the API powering Belong's core features — from fan data aggregation to secure financial transactions.
 
 **Responsibilities**  
-- Develop and maintain scalable REST APIs using TypeScript, Fastify, and TypeORM on AWS (Kubernetes, Lambda, Postgres).  
-- Integrate with third-party services like Synctera (for banking/KYC), Plaid, and music APIs (Spotify/Google).  
-- Ensure bank-grade security, including encryption, MFA, and DDoS protection via Cloudflare.  
-- Optimize database queries, handle high-traffic loads, and implement microservices.  
+- Design, develop, and maintain scalable REST APIs using TypeScript and Node.js on cloud infrastructure.  
+- Integrate with third-party services across banking, identity verification, and music platforms.  
+- Implement and uphold bank-grade security standards including encryption, MFA, and DDoS mitigation.  
+- Optimize database performance, handle high-traffic loads, and evolve our service architecture.  
 - Collaborate with frontend and product teams to deliver end-to-end features.  
 
 **Requirements**  
 - 3+ years of backend development with Node.js/TypeScript.  
-- Experience with relational databases (e.g., Postgres), ORMs, and cloud infrastructure (AWS preferred).  
-- Strong knowledge of API design, authentication (JWT/OAuth), and testing (e.g., Jest).  
-- Familiarity with containerization (Docker/Kubernetes) and serverless architectures.  
+- Experience with relational databases (e.g., PostgreSQL), ORMs, and cloud infrastructure (AWS preferred).  
+- Strong knowledge of API design, authentication (JWT/OAuth), and testing frameworks.  
+- Familiarity with containerization and orchestration (Docker/Kubernetes) and serverless patterns.  
 - High ownership in a fast-paced startup, with a focus on secure, performant code.  
 
 **Nice-to-Haves**  
-- Experience in fintech, compliance (KYC/AML), or high-security apps.  
-- Knowledge of event-driven systems or real-time features (e.g., WebSockets).  
+- Experience in fintech, compliance (KYC/AML), or high-security applications.  
+- Knowledge of event-driven systems or real-time features.  
 - Contributions to open-source or a portfolio of backend projects.  
 
 **What We Offer**  
