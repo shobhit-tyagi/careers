@@ -24,41 +24,44 @@ This GitHub repo serves as a hub for our careers-related resources. It includes 
 
 We're growing fast and currently hiring for the following roles. Each position offers impactful work, a dream team environment, and the chance to redefine fandom. All roles are fully remote or at onsite in Stockholm with flexible hours.
 
-
 ### $${\color{green}🚀 \space React \space Native \space Developer \space Developer}$$
 
 **[📱 View Technical Assessment →](./react-native/README.md)**
 
 Join our dream team as a React Native Mobile Developer and help build the first Fan-Tech company—creating the financial layer of fandom through our mobile-first Fintech app.
 
-**About the Role**  
+**About the Role**
 Belong is transforming the music industry by bridging artists and their true fans through a secure, rewards-driven ecosystem. We eliminate middlemen, empowering artists to own their fan data and build direct relationships using verified fan profiles (via KYC) and integrated financial tools. Fans earn rewards for engagement, gain priority access to exclusive perks like tickets, and connect directly with artists.
 
-**Responsibilities**  
-- 📱 Develop and maintain high-quality, performant mobile applications using React Native for iOS and Android.  
-- 🤖 Use AI code agents to 10x your performance while maintaining high coding standards.  
-- 🎨 Collaborate with product designers and backend engineers to implement intuitive user flows and pixel-perfect UI.  
-- 🚄 Optimize app performance and security, ensuring smooth and responsive experiences.  
-- ⛓ Integrate APIs and third-party services to deliver seamless fintech and music-driven features.  
+**Responsibilities**
 
-**Requirements**  
-- 👉 3+ years of experience in mobile app development with React Native.  
-- 👉 Experience building and deploying apps to the App Store and Google Play.  
-- 👉 Understanding of mobile UX/UI principles.  
-- 👉 Familiarity with testing frameworks (e.g., Jest).  
-- 👉 Ability to thrive in a fast-moving, startup environment.  
-- 👉 High sense of ownership and responsibility; you will be a key team member.  
+- 📱 Develop and maintain high-quality, performant mobile applications using React Native for iOS and Android.
+- 🤖 Use AI code agents to 10x your performance while maintaining high coding standards.
+- 🎨 Collaborate with product designers and backend engineers to implement intuitive user flows and pixel-perfect UI.
+- 🚄 Optimize app performance and security, ensuring smooth and responsive experiences.
+- ⛓ Integrate APIs and third-party services to deliver seamless fintech and music-driven features.
 
-**Nice-to-Haves**  
-- Experience with fintech or payment-related apps.  
-- Knowledge of native iOS (Swift) or Android (Kotlin) development.  
-- Contributions to open-source projects or a strong portfolio of mobile apps.  
+**Requirements**
 
-**What We Offer**  
-- Remote Work: Fully remote with preference for EU/US time zones.  
-- Impactful Work: A rare chance to redefine fandom and fintech.  
-- Dream Team: Join a passionate, music-loving team building something extraordinary.  
-- Key Role: Your work and ideas will directly shape the product and user experience.  
+- 👉 3+ years of experience in mobile app development with React Native.
+- 👉 Experience building and deploying apps to the App Store and Google Play.
+- 👉 Understanding of mobile UX/UI principles.
+- 👉 Familiarity with testing frameworks (e.g., Jest).
+- 👉 Ability to thrive in a fast-moving, startup environment.
+- 👉 High sense of ownership and responsibility; you will be a key team member.
+
+**Nice-to-Haves**
+
+- Experience with fintech or payment-related apps.
+- Knowledge of native iOS (Swift) or Android (Kotlin) development.
+- Contributions to open-source projects or a strong portfolio of mobile apps.
+
+**What We Offer**
+
+- Remote Work: Fully remote with preference for EU/US time zones.
+- Impactful Work: A rare chance to redefine fandom and fintech.
+- Dream Team: Join a passionate, music-loving team building something extraordinary.
+- Key Role: Your work and ideas will directly shape the product and user experience.
 
 To apply, email your resume, GitHub/portfolio, and a brief note on why you're excited about Belong to careers@getbelong.app. Reference the React Native tasks in this repo for your application.
 
@@ -66,58 +69,64 @@ To apply, email your resume, GitHub/portfolio, and a brief note on why you're ex
 
 We're seeking a talented Frontend React Developer to craft intuitive, pixel-perfect user interfaces for our web and mobile-web experiences. You'll focus on building responsive components that bring our fan engagement features to life, ensuring seamless interactions across devices.
 
-**Responsibilities**  
-- Build and maintain high-performance frontend applications using React, with a focus on UI/UX excellence.  
-- Collaborate with designers to translate wireframes into interactive, accessible components.  
-- Integrate with backend APIs and third-party services (e.g., Spotify, Plaid).  
-- Optimize for performance, scalability, and cross-browser compatibility.  
-- Contribute to our design system and ensure code quality through testing (e.g., Jest, React Testing Library).  
+**Responsibilities**
 
-**Requirements**  
-- 3+ years of experience with React and modern JavaScript/TypeScript.  
-- Strong understanding of HTML/CSS, state management (e.g., Redux/Context), and component libraries (e.g., Material-UI or similar).  
-- Experience with responsive design and web performance optimization.  
-- Familiarity with version control (Git) and agile workflows.  
-- Ability to work independently in a startup environment with high ownership.  
+- Build and maintain high-performance frontend applications using React, with a focus on UI/UX excellence.
+- Collaborate with designers to translate wireframes into interactive, accessible components.
+- Integrate with backend APIs and third-party services (e.g., Spotify, Plaid).
+- Optimize for performance, scalability, and cross-browser compatibility.
+- Contribute to our design system and ensure code quality through testing (e.g., Jest, React Testing Library).
 
-**Nice-to-Haves**  
-- Experience in fintech, music tech, or consumer apps.  
-- Knowledge of Next.js or server-side rendering.  
-- Open-source contributions or a portfolio showcasing React projects.  
+**Requirements**
 
-**What We Offer**  
+- 3+ years of experience with React and modern JavaScript/TypeScript.
+- Strong understanding of HTML/CSS, state management (e.g., Redux/Context), and component libraries (e.g., Material-UI or similar).
+- Experience with responsive design and web performance optimization.
+- Familiarity with version control (Git) and agile workflows.
+- Ability to work independently in a startup environment with high ownership.
+
+**Nice-to-Haves**
+
+- Experience in fintech, music tech, or consumer apps.
+- Knowledge of Next.js or server-side rendering.
+- Open-source contributions or a portfolio showcasing React projects.
+
+**What We Offer**
 Same as above—fully remote, impactful role, and a collaborative team. Your contributions will directly enhance how fans interact with Belong's rewards and persona features.
 
 Apply to careers@getbelong.app with your resume, portfolio, and references to frontend tasks in this repo.
 
 ### $${\color{green}🚀 \space Backend \space Developer \space (Node.js/TypeScript)}$$
 
+**[⚙️ View Technical Assessment →](./backend/README.md)**
+
 We're looking for a Backend Developer to scale the API powering Belong's core features — from fan data aggregation to secure financial transactions.
 
-**Responsibilities**  
-- Design, develop, and maintain scalable REST APIs using TypeScript and Node.js on cloud infrastructure.  
-- Integrate with third-party services across banking, identity verification, and music platforms.  
-- Implement and uphold bank-grade security standards including encryption, MFA, and DDoS mitigation.  
-- Optimize database performance, handle high-traffic loads, and evolve our service architecture.  
-- Collaborate with frontend and product teams to deliver end-to-end features.  
+**Responsibilities**
 
-**Requirements**  
-- 3+ years of backend development with Node.js/TypeScript.  
-- Experience with relational databases (e.g., PostgreSQL), ORMs, and cloud infrastructure (AWS preferred).  
-- Strong knowledge of API design, authentication (JWT/OAuth), and testing frameworks.  
-- Familiarity with containerization and orchestration (Docker/Kubernetes) and serverless patterns.  
-- High ownership in a fast-paced startup, with a focus on secure, performant code.  
+- Design, develop, and maintain scalable REST APIs using TypeScript and Node.js on cloud infrastructure.
+- Integrate with third-party services across banking, identity verification, and music platforms.
+- Implement and uphold bank-grade security standards including encryption, MFA, and DDoS mitigation.
+- Optimize database performance, handle high-traffic loads, and evolve our service architecture.
+- Collaborate with frontend and product teams to deliver end-to-end features.
 
-**Nice-to-Haves**  
-- Experience in fintech, compliance (KYC/AML), or high-security applications.  
-- Knowledge of event-driven systems or real-time features.  
-- Contributions to open-source or a portfolio of backend projects.  
+**Requirements**
 
-**What We Offer**  
+- 3+ years of backend development with Node.js/TypeScript.
+- Experience with relational databases (e.g., PostgreSQL), ORMs, and cloud infrastructure (AWS preferred).
+- Strong knowledge of API design, authentication (JWT/OAuth), and testing frameworks.
+- Familiarity with containerization and orchestration (Docker/Kubernetes) and serverless patterns.
+- High ownership in a fast-paced startup, with a focus on secure, performant code.
+
+**Nice-to-Haves**
+
+- Experience in fintech, compliance (KYC/AML), or high-security applications.
+- Knowledge of event-driven systems or real-time features.
+- Contributions to open-source or a portfolio of backend projects.
+
+**What We Offer**
 Fully remote, meaningful impact, and direct influence on Belong's architecture as we grow.
 
 Apply to careers@getbelong.app with your resume, GitHub, and references to backend tasks in this repo.
-
-
 
 We're excited to hear from you—let's build the future of fandom together! 🚀
