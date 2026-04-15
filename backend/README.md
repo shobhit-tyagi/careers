@@ -324,8 +324,9 @@ npm run test:coverage
 1. **GitHub Repository** with clean commit history OR **ZIP of the project**
 2. **README.md** with setup and run instructions
 3. **ARCHITECTURE.md** explaining design decisions
-4. **Postman Collection or OpenAPI spec** for testing the API
-5. **Demo Video** (3-4 minutes) showing:
+4. **ai_use_description.md** — You're welcome to use any AI tools during this assessment. If you do, include this file describing which tools you used, how you used them, and why. Be honest — we value how you leverage AI as a force multiplier, not whether you used it.
+5. **Postman Collection or OpenAPI spec** for testing the API
+6. **Demo Video** (3-4 minutes) showing:
    - Docker Compose startup and migrations
    - Auth flow (register, login, refresh)
    - Challenge completion and points earning
