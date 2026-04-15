@@ -311,18 +311,11 @@ npm run test:coverage
 
 #### $${\color{blue}Deliverables:}$$
 
-1. **GitHub Repository** with clean commit history OR **ZIP of the project**
+1. **Your own GitHub Repository** (public or private with access granted to `Belong-dev`) with clean commit history — do NOT open a pull request on this repo
 2. **README.md** with setup and run instructions
 3. **ARCHITECTURE.md** explaining design decisions
 4. **ai_use_description.md** — You're welcome to use any AI tools during this assessment. If you do, include this file describing which tools you used, how you used them, and why. Be honest — we value how you leverage AI as a force multiplier, not whether you used it.
-5. **Postman Collection or OpenAPI spec** for testing the API
-6. **Demo Video** (3-4 minutes) showing:
-   - Docker Compose startup and migrations
-   - Auth flow (register, login, refresh)
-   - Challenge completion and points earning
-   - Reward redemption with insufficient points error
-   - Leaderboard ranking
-   - Test suite running
+5. **Demo Video** (3-4 minutes) — walk us through your project, show it running, and highlight what you're most proud of
 
 #### $${\color{green}Before \space Submitting:}$$
 
