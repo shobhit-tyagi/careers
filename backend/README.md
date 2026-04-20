@@ -1,12 +1,12 @@
-# $${\color{purple}🚀 \space Backend \space Developer \space Technical \space Assessment}$$
+# Backend Developer Technical Assessment
 
-## $${\color{blue}🎵 \space Project: \space "FanRewards \space API"}$$
+## Project: "FanRewards API"
 
 Build a simplified fan rewards API that demonstrates the core backend patterns used in Belong's platform. We've provided a starter project with the barebones to get you going.
 
 ---
 
-## $${\color{orange}⚙️ \space Belong \space Backend \space Infrastructure \space Analysis}$$
+## Belong Backend Infrastructure Analysis
 
 ### **Tech Stack:**
 
@@ -28,9 +28,9 @@ Build a simplified fan rewards API that demonstrates the core backend patterns u
 
 ---
 
-## $${\color{purple}🎯 \space Requirements}$$
+## Requirements
 
-### $${\color{green}1. \space Core \space Features \space (4-5 \space hours)}$$
+### 1. Core Features
 
 Build a REST API with these resources:
 
@@ -40,9 +40,9 @@ Build a REST API with these resources:
 - **Rewards** — Track points earned, redeem rewards, view history
 - **Leaderboard** — Ranked list of top fans by points
 
-### $${\color{blue}2. \space Technical \space Architecture \space Requirements}$$
+### 2. Technical Architecture Requirements
 
-#### $${\color{orange}Entity \space Design:}$$
+#### Entity Design:
 
 Design and implement the following TypeORM entities with appropriate column types, relations, and constraints:
 
@@ -54,7 +54,7 @@ Design and implement the following TypeORM entities with appropriate column type
 
 Set up proper relations between entities (e.g. a user has many completions, a challenge has many completions, etc.).
 
-#### $${\color{orange}Route \space Architecture:}$$
+#### Route Architecture:
 
 ```typescript
 // Fastify plugin-based route registration
@@ -86,7 +86,7 @@ GET    /api/leaderboard           // Top fans ranked by points (paginated)
 GET    /api/leaderboard/me        // Current user's rank
 ```
 
-#### $${\color{orange}Service \space Layer:}$$
+#### Service Layer:
 
 Separate business logic from route handlers. Implement services for:
 
@@ -95,7 +95,7 @@ Separate business logic from route handlers. Implement services for:
 - **RewardService** — list available rewards, redeem a reward, get redemption history
 - **LeaderboardService** — get top fans ranked by points, get a user's rank
 
-#### $${\color{orange}Authentication:}$$
+#### Authentication:
 
 Implement JWT-based authentication with:
 
@@ -104,9 +104,9 @@ Implement JWT-based authentication with:
 - **Auth guard** — middleware that protects routes and identifies the current user
 - **Password security** — hash passwords before storing
 
-### $${\color{blue}3. \space API \space Design \space Standards}$$
+### 3. API Design Standards
 
-#### $${\color{orange}Request/Response \space Format:}$$
+#### Request/Response Format:
 
 ```typescript
 // All responses follow a consistent envelope
@@ -130,13 +130,13 @@ Implement JWT-based authentication with:
 // 403 Forbidden, 404 Not Found, 409 Conflict, 422 Unprocessable Entity
 ```
 
-#### $${\color{orange}Validation:}$$
+#### Validation:
 
 All endpoints should validate input. Use JSON Schema or Typebox for request validation in Fastify.
 
-### $${\color{blue}4. \space Business \space Rules}$$
+### 4. Business Rules
 
-#### $${\color{orange}A) \space Challenge \space Completion}$$
+#### A) Challenge Completion
 
 - Points are awarded based on how much of the challenge the user listened to (listen duration percentage, 0-100)
 - Minimum **80% listen** required to earn full points
@@ -144,19 +144,19 @@ All endpoints should validate input. Use JSON Schema or Typebox for request vali
 - A user can complete the same challenge multiple times (each is a separate record)
 - The user's total points should be updated accordingly
 
-#### $${\color{orange}B) \space Reward \space Redemption}$$
+#### B) Reward Redemption
 
 - A user spends points to redeem a reward
 - The user must have enough points — if not, return an error
 - Points are deducted and a redemption record is created
 - Consider what happens if multiple requests come in at the same time for the same user
 
-#### $${\color{orange}C) \space Leaderboard}$$
+#### C) Leaderboard
 
 - Returns fans ranked by total points, with pagination
 - Should handle ties gracefully
 
-#### $${\color{orange}D) \space Seed \space Data}$$
+#### D) Seed Data
 
 ```typescript
 // Seed challenges using Belong's sample tracks
@@ -211,7 +211,7 @@ const SEED_REWARDS = [
 ];
 ```
 
-### $${\color{green}5. \space Project \space Structure}$$
+### 5. Project Structure
 
 ```
 backend/test-app/
@@ -248,9 +248,9 @@ backend/test-app/
 └── README.md
 ```
 
-### $${\color{blue}6. \space Setup \space Instructions}$$
+### 6. Setup Instructions
 
-#### $${\color{orange}Setup \space and \space Run:}$$
+#### Setup and Run:
 
 ```bash
 # 1. Start PostgreSQL
@@ -271,7 +271,7 @@ npm run dev
 # Server runs on http://localhost:3000
 ```
 
-#### $${\color{orange}Run \space Tests:}$$
+#### Run Tests:
 
 ```bash
 # Run all tests
@@ -281,17 +281,17 @@ npm test
 npm run test:coverage
 ```
 
-### $${\color{red}🚀 \space Bonus \space Features \space (Extra \space Credit)}$$
+### Bonus Features (Extra Credit)
 
-#### $${\color{green}Advanced \space Backend \space Features:}$$
+#### Advanced Backend Features:
 
-- Rate limiting with sliding window (e.g., per-user, per-endpoint)
+- Rate limiting
 - Request logging with correlation IDs
 - Health check endpoint with DB connectivity status
 - Swagger/OpenAPI documentation auto-generated from schemas
 - Database query optimization with EXPLAIN analysis
 
-#### $${\color{blue}Enhanced \space Security:}$$
+#### Enhanced Security:
 
 - Refresh token rotation (invalidate old token on refresh)
 - Account lockout after failed login attempts
@@ -299,17 +299,18 @@ npm run test:coverage
 - Helmet headers and content security policy
 - API key authentication for admin endpoints
 
-#### $${\color{purple}Advanced \space Architecture:}$$
+#### Advanced Architecture:
 
 - Event-driven challenge completion (emit events on completion)
-- Caching layer for leaderboard (Redis or in-memory)
+- Caching
 - Background job for leaderboard recalculation
 - Graceful shutdown handling
 - Database connection pooling tuning
+- Security measures and considerations
 
-### $${\color{orange}📋 \space Submission \space Requirements}$$
+### Submission Requirements
 
-#### $${\color{blue}Deliverables:}$$
+#### Deliverables:
 
 1. **Your own GitHub Repository** (public or private with access granted to `Belong-dev`) with clean commit history — do NOT open a pull request on this repo
 2. **README.md** with setup and run instructions
@@ -317,42 +318,44 @@ npm run test:coverage
 4. **ai_use_description.md** — You're welcome to use any AI tools during this assessment. If you do, include this file describing which tools you used, how you used them, and why. Be honest — we value how you leverage AI as a force multiplier, not whether you used it.
 5. **Demo Video** (3-4 minutes) — walk us through your project, show it running, and highlight what you're most proud of
 
-#### $${\color{green}Before \space Submitting:}$$
+#### Before Submitting:
 
 - [ ] `docker compose up && npm run migration:run && npm run dev` works from scratch
 - [ ] All endpoints function as described
 - [ ] Auth flow works end-to-end
 - [ ] TypeScript compiles with no errors
 
-#### $${\color{purple}Timeline:}$$
+#### Timeline:
 
 - **Initial submission:** 5 days from start
 - **Code review session:** 1 hour technical discussion
 - **Follow-up questions:** Architecture and scaling discussions
 
-### $${\color{red}🤔 \space Assessment \space Questions}$$
+### Assessment Questions
 
 During code review, we'll discuss:
 
 1. **Architecture:** "Walk me through your service layer. Why separate services from route handlers?"
 
-2. **Database Design:** "How did you decide on the entity relations? What indexes would you add at scale?"
+2. **Development and AI Strategies:** "How do you use tools and AI configurations in your development workflow?"
 
-3. **Security:** "Explain your token refresh flow. How do you handle token theft?"
+3. **Database Design:** "How did you decide on the entity relations? What indexes would you add at scale?"
 
-4. **Concurrency:** "What happens if two users redeem the last reward simultaneously? Show me how you handle it."
+4. **Security:** "Explain your token refresh flow. How do you handle token theft?"
 
-5. **Performance:** "How would you optimize the leaderboard for 1M users?"
+5. **Concurrency:** "What happens if two users redeem the last reward simultaneously? Show me how you handle it."
 
-6. **Testing:** "What's your strategy for testing the auth flow end-to-end?"
+6. **Performance:** "How would you optimize the leaderboard for 1M users?"
 
-7. **Scaling:** "How would you evolve this API to support microservices? What would you extract first?"
+7. **Testing:** "What's your strategy for testing the auth flow end-to-end?"
 
-8. **Error Handling:** "Walk me through what happens when the database is unavailable. How does the API respond?"
+8. **Scaling:** "How would you evolve this API to support microservices? What would you extract first?"
+
+9. **Error Handling:** "Walk me through what happens when the database is unavailable. How does the API respond?"
 
 ---
 
-## $${\color{green}🚀 \space Getting \space Started}$$
+## Getting Started
 
 **New to this assessment?** Start here:
 
@@ -372,4 +375,4 @@ backend/
 
 Questions during development? Email **careers@getbelong.app** — we want you to succeed!
 
-$${\color{purple}Good \space luck \space building \space the \space future \space of \space fandom! \space 🚀🎵}$$
+Good luck building the future of fandom!
