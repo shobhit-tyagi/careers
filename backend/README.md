@@ -259,10 +259,11 @@ docker compose up -d
 # 2. Install dependencies
 npm install
 
-# 3. Run migrations
+# 3. Generate and run migrations (after you've implemented the entities)
+npm run migration:generate src/migrations/Init
 npm run migration:run
 
-# 4. Seed the database
+# 4. Seed the database (after you've implemented src/seed.ts)
 npm run seed
 
 # 5. Start the dev server
@@ -320,14 +321,14 @@ npm run test:coverage
 
 #### Before Submitting:
 
-- [ ] `docker compose up && npm run migration:run && npm run dev` works from scratch
+- [ ] Setup instructions in your README work from a clean clone
 - [ ] All endpoints function as described
 - [ ] Auth flow works end-to-end
 - [ ] TypeScript compiles with no errors
 
 #### Timeline:
 
-- **Initial submission:** 5 days from start
+- **Initial submission:** Take the time you need — we care about what you build, not how long you spent. Most candidates submit within a week.
 - **Code review session:** 1 hour technical discussion
 - **Follow-up questions:** Architecture and scaling discussions
 

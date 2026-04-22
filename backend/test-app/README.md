@@ -14,10 +14,11 @@ docker compose up -d
 # 3. Install dependencies
 npm install
 
-# 4. Run migrations
+# 4. Generate and run migrations (after implementing entities)
+npm run migration:generate src/migrations/Init
 npm run migration:run
 
-# 5. Seed the database
+# 5. Seed the database (after implementing src/seed.ts)
 npm run seed
 
 # 6. Start dev server
@@ -30,8 +31,7 @@ Server runs on http://localhost:3000
 
 - Project structure with Fastify + TypeScript + TypeORM configured
 - Docker Compose with PostgreSQL (dev + test databases)
-- Starter entity files, route stubs, and service placeholders
-- Test file stubs with suggested test cases
+- Empty entity, route, service, and seed placeholders for you to implement
 - TypeScript strict mode enabled
 
 ## What You Need to Build
