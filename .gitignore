@@ -12,3 +12,6 @@ react-native/test-app/android/
 **/build/
 **/coverage/
 
+# Internal evaluation rubric (not for candidates)
+backend/EVALUATION.md
+
