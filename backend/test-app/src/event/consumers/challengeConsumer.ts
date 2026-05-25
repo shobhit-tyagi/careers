@@ -1,4 +1,3 @@
-import {LeaderboardBuilderService} from "../../services/LeaderboardBuilderService";
 import {EXCHANGE, getChannel} from "../../plugins/rabbitmq";
 
 type ChallengeCompletedEvent = {
@@ -8,8 +7,6 @@ type ChallengeCompletedEvent = {
     listenDurationPercent: number;
     timestamp: string;
 };
-
-const builder = new LeaderboardBuilderService();
 
 export function startChallengeConsumer() {
     const channel = getChannel();
@@ -25,11 +22,7 @@ export function startChallengeConsumer() {
                 msg.content.toString(),
             );
 
-            await builder.applyPointsChange({
-                userId: event.userId,
-                delta: event.pointsEarned,
-            });
-
+            console.log("Consumed event: ", event);
             channel.ack(msg);
         } catch (err) {
             console.error('challenge consumer failed', err);

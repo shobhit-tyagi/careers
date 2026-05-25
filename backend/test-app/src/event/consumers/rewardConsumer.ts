@@ -1,4 +1,3 @@
-import {LeaderboardBuilderService} from "../../services/LeaderboardBuilderService";
 import {EXCHANGE, getChannel} from "../../plugins/rabbitmq";
 
 type RewardRedeemedEvent = {
@@ -8,8 +7,6 @@ type RewardRedeemedEvent = {
     pointsSpent: number;
     timestamp: string;
 };
-
-const builder = new LeaderboardBuilderService();
 
 export function startRewardConsumer() {
     const channel = getChannel();
@@ -22,12 +19,7 @@ export function startRewardConsumer() {
 
         try {
             const event: RewardRedeemedEvent = JSON.parse(msg.content.toString());
-
-            await builder.applyPointsChange({
-                userId: event.userId,
-                delta: -event.pointsSpent,
-            });
-
+            console.log("Consumed event: ", event);
             channel.ack(msg);
         } catch (err) {
             console.error('reward consumer failed', err);

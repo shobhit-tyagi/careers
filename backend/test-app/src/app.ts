@@ -16,6 +16,7 @@ import swaggerUi from '@fastify/swagger-ui';
 import {initRabbitMQ} from "./plugins/rabbitmq";
 import {initRedis} from "./plugins/redis";
 import {startConsumers} from "./event/consumers";
+import {startLeaderboardScheduler} from "./jobs/scheduler";
 
 const buildApp = async () => {
   const app = Fastify({
@@ -31,7 +32,7 @@ const buildApp = async () => {
   await initRabbitMQ();
   await initRedis();
   startConsumers();
-
+  startLeaderboardScheduler();
   setupErrorHandler(app);
 
   // Swagger
