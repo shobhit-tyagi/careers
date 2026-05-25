@@ -20,21 +20,32 @@ export default async function authRoutes(fastify: FastifyInstance) {
     );
 
     // Login
-    fastify.post<{ Body: Static<typeof LoginBody> }>(
-        '/login',
-        {schema: {body: LoginBody}},
-        async (request, reply) => {
-            const body = request.body as Static<typeof LoginBody>;
-            AuthValidator.validateLoginBody(body);
-            const result = await authService.login(body.email, body.password);
-            return reply.send(result);
-        }
-    );
+    fastify.post('/login', {
+        schema: { body: LoginBody },
+        config: {
+            rateLimit: {
+                max: 5,
+                timeWindow: '1 minute',
+            },
+        },
+    }, async (request, reply) => {
+        const body = request.body as Static<typeof LoginBody>;
+        AuthValidator.validateLoginBody(body);
+        const result = await authService.login(body.email, body.password);
+        return reply.send(result);
+    });
 
     // Refresh
     fastify.post<{ Body: Static<typeof RefreshBody> }>(
         '/refresh',
-        {schema: {body: RefreshBody}},
+        {schema: {body: RefreshBody},
+            config: {
+                rateLimit: {
+                    max: 10,
+                    timeWindow: '1 minute',
+                },
+            },
+        },
         async (request, reply) => {
             const body = request.body as Static<typeof RefreshBody>;
             AuthValidator.validateRefreshBody(body);

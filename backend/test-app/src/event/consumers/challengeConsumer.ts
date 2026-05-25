@@ -1,4 +1,4 @@
-import {EXCHANGE, getChannel} from "../../plugins/rabbitmq";
+import { EXCHANGE, getChannel } from '../../plugins/rabbitmq';
 
 type ChallengeCompletedEvent = {
     userId: string;
@@ -7,6 +7,8 @@ type ChallengeCompletedEvent = {
     listenDurationPercent: number;
     timestamp: string;
 };
+
+let consumerTag: string | null = null;
 
 export function startChallengeConsumer() {
     const channel = getChannel();
@@ -22,11 +24,23 @@ export function startChallengeConsumer() {
                 msg.content.toString(),
             );
 
-            console.log("Consumed event: ", event);
+            console.log('Consumed event:', event);
             channel.ack(msg);
         } catch (err) {
             console.error('challenge consumer failed', err);
             channel.nack(msg, false, true);
         }
+    }).then((res) => {
+        consumerTag = res.consumerTag;
     });
+}
+
+export async function stopChallengeConsumer() {
+    const channel = getChannel();
+
+    if (consumerTag) {
+        await channel.cancel(consumerTag);
+        consumerTag = null;
+        console.log('[ChallengeConsumer] stopped');
+    }
 }

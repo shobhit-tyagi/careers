@@ -22,29 +22,18 @@ export class AuthService {
     private refreshTokenRepository =
         dataSource.getRepository(RefreshToken);
 
-    async register(
-        email: string,
-        password: string,
-        displayName: string,
-    ): Promise<
-        ApiResponse<{
-            userId: string;
-            accessToken: string;
-            refreshToken: string;
-        }>
-    > {
+    async register(email: string, password: string, displayName: string):
+        Promise<ApiResponse<{ userId: string; accessToken: string; refreshToken: string }>> {
+
         const existing = await this.userRepository.findOne({
             where: { email },
         });
 
         if (existing) {
-            throw new ConflictError(
-                `User with email ${email} already exists`,
-            );
+            throw new ConflictError(`User already exists`);
         }
 
         const passwordHash = await bcrypt.hash(password, 10);
-
         const user = this.userRepository.create({
             email,
             passwordHash,
@@ -52,10 +41,7 @@ export class AuthService {
         });
 
         const savedUser = await this.userRepository.save(user);
-
-        const tokens =
-            await this.generateAndStoreTokens(savedUser);
-
+        const tokens = await this.generateAndStoreTokens(savedUser);
         return {
             data: {
                 userId: savedUser.id,
@@ -70,34 +56,22 @@ export class AuthService {
         });
 
         if (!user) {
-            throw new AppError(
-                401,
-                'Invalid credentials',
-                'INVALID_CREDENTIALS',
-            );
+            throw new AppError(401, 'Invalid credentials', 'INVALID_CREDENTIALS');
         }
-
         if (user.lockedUntil && user.lockedUntil > new Date()) {
-            throw new AppError(
-                423,
-                'Account is locked',
-                'ACCOUNT_LOCKED',
-            );
+            throw new AppError(423, 'Account is locked', 'ACCOUNT_LOCKED');
         }
 
-        const match = await bcrypt.compare(
-            password,
-            user.passwordHash,
-        );
-
+        const match = await bcrypt.compare(password, user.passwordHash);
         if (!match) {
             user.failedLoginAttempts += 1;
+
             if (user.failedLoginAttempts >= MAX_FAILED) {
                 user.lockedUntil = new Date(
                     Date.now() + LOCK_MINUTES * 60 * 1000,
                 );
-
                 user.failedLoginAttempts = 0;
+
                 await this.refreshTokenRepository.update(
                     { user: { id: user.id }, revoked: false },
                     { revoked: true },
@@ -105,19 +79,14 @@ export class AuthService {
             }
 
             await this.userRepository.save(user);
-            throw new AppError(
-                401,
-                'Invalid credentials',
-                'INVALID_CREDENTIALS',
-            );
+            throw new AppError(401, 'Invalid credentials', 'INVALID_CREDENTIALS');
         }
 
         user.failedLoginAttempts = 0;
         user.lockedUntil = null;
+
         await this.userRepository.save(user);
-
         const tokens = await this.generateAndStoreTokens(user);
-
         return {
             data: {
                 userId: user.id,
@@ -127,16 +96,13 @@ export class AuthService {
     }
 
     async refresh(refreshToken: string) {
-        const refreshSecret: Secret =
-            config.jwt.refreshSecret as Secret;
-
+        const refreshSecret: Secret = config.jwt.refreshSecret as Secret;
         let decoded: JwtPayload;
         try {
             decoded = jwt.verify(refreshToken, refreshSecret) as JwtPayload;
         } catch {
             throw new UnauthorizedError('Invalid refresh token');
         }
-
         if (!decoded.userId || typeof decoded.userId !== 'string') {
             throw new UnauthorizedError('Invalid refresh token');
         }
@@ -153,59 +119,38 @@ export class AuthService {
         if (!storedToken) {
             throw new UnauthorizedError('Refresh token revoked');
         }
-
         if (storedToken.expiresAt < new Date()) {
             throw new UnauthorizedError('Refresh token expired');
         }
 
         const user = storedToken.user;
-
         if (user.lockedUntil && user.lockedUntil > new Date()) {
             throw new UnauthorizedError('Account locked');
         }
 
         storedToken.revoked = true;
         await this.refreshTokenRepository.save(storedToken);
-
         const tokens = await this.generateAndStoreTokens(user);
         return { data: tokens };
     }
 
     async logout(refreshToken: string): Promise<void> {
         const hashedToken = this.hashToken(refreshToken);
-
-        const storedToken =
-            await this.refreshTokenRepository.findOne({
-                where: { tokenHash: hashedToken },
-            });
+        const storedToken = await this.refreshTokenRepository.findOne({
+            where: { tokenHash: hashedToken },
+        });
 
         if (!storedToken) return;
-
         storedToken.revoked = true;
-        await this.refreshTokenRepository.save(
-            storedToken,
-        );
+        await this.refreshTokenRepository.save(storedToken);
     }
 
-    private async generateAndStoreTokens(
-        user: User,
-    ): Promise<TokenPair> {
-        const accessSecret: Secret =
-            config.jwt.accessSecret as Secret;
-
-        const refreshSecret: Secret =
-            config.jwt.refreshSecret as Secret;
-
-        const accessExpiresIn =
-            config.jwt.accessExpiresIn as
-                | StringValue
-                | number;
-
-        const refreshExpiresIn =
-            config.jwt.refreshExpiresIn as
-                | StringValue
-                | number;
-
+    private async generateAndStoreTokens(user: User): Promise<TokenPair> {
+        const accessSecret = config.jwt.accessSecret as Secret;
+        const refreshSecret = config.jwt.refreshSecret as Secret;
+        const accessExpiresIn = config.jwt.accessExpiresIn as StringValue | number;
+        const refreshExpiresIn = config.jwt.refreshExpiresIn as StringValue | number;
+        const jti = crypto.randomUUID();
         const accessToken = jwt.sign(
             { userId: user.id },
             accessSecret,
@@ -213,28 +158,29 @@ export class AuthService {
         );
 
         const refreshToken = jwt.sign(
-            { userId: user.id },
+            {
+                userId: user.id,
+                jti,
+            },
             refreshSecret,
             { expiresIn: refreshExpiresIn },
         );
 
-        const decoded =
-            jwt.decode(refreshToken) as JwtPayload;
+        const decoded = jwt.decode(refreshToken) as JwtPayload;
+        const refreshTokenEntity = this.refreshTokenRepository.create({
+            tokenHash: this.hashToken(refreshToken),
+            expiresAt: new Date((decoded.exp || 0) * 1000),
+            user,
+        });
 
-        const refreshTokenEntity =
-            this.refreshTokenRepository.create({
-                tokenHash:
-                    this.hashToken(refreshToken),
-                expiresAt: new Date(
-                    (decoded.exp || 0) * 1000,
-                ),
-                user,
-            });
-
-        await this.refreshTokenRepository.save(
-            refreshTokenEntity,
-        );
-
+        try {
+            await this.refreshTokenRepository.save(refreshTokenEntity);
+        } catch (err: any) {
+            if (err.code === '23505') {
+                return this.generateAndStoreTokens(user);
+            }
+            throw err;
+        }
         return {
             accessToken,
             refreshToken,
@@ -242,9 +188,6 @@ export class AuthService {
     }
 
     private hashToken(token: string): string {
-        return crypto
-            .createHash('sha256')
-            .update(token)
-            .digest('hex');
+        return crypto.createHash('sha256').update(token).digest('hex');
     }
 }

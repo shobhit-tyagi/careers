@@ -1,4 +1,4 @@
-import {EXCHANGE, getChannel} from "../../plugins/rabbitmq";
+import { EXCHANGE, getChannel } from '../../plugins/rabbitmq';
 
 type RewardRedeemedEvent = {
     userId: string;
@@ -7,6 +7,8 @@ type RewardRedeemedEvent = {
     pointsSpent: number;
     timestamp: string;
 };
+
+let consumerTag: string | null = null;
 
 export function startRewardConsumer() {
     const channel = getChannel();
@@ -19,11 +21,24 @@ export function startRewardConsumer() {
 
         try {
             const event: RewardRedeemedEvent = JSON.parse(msg.content.toString());
-            console.log("Consumed event: ", event);
+
+            console.log('Consumed event:', event);
             channel.ack(msg);
         } catch (err) {
             console.error('reward consumer failed', err);
             channel.nack(msg, false, true);
         }
+    }).then((res) => {
+        consumerTag = res.consumerTag;
     });
+}
+
+export async function stopRewardConsumer() {
+    const channel = getChannel();
+
+    if (consumerTag) {
+        await channel.cancel(consumerTag);
+        consumerTag = null;
+        console.log('[RewardConsumer] stopped');
+    }
 }

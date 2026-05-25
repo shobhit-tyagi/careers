@@ -24,7 +24,5 @@ export async function rebuildLeaderboardJob() {
     await redis.set(
         'leaderboard:snapshot',
         JSON.stringify(sorted),
-        'EX',
-        10,
     );
 }
