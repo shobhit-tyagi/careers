@@ -27,7 +27,8 @@
     "dotenv": "^16.4.0",
     "@fastify/swagger": "^8.x",
     "@fastify/swagger-ui": "^4.x",
-    "amqplib": "0.10.4"
+    "amqplib": "0.10.4",
+    "ioredis": "^5.x"
   },
   "devDependencies": {
     "typescript": "^5.5.0",

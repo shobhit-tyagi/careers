@@ -1,32 +1,43 @@
+version: '3.9'
+
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16
+    container_name: fan_rewards_postgres
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: belong
-      POSTGRES_PASSWORD: belong_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: fan_rewards
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  postgres-test:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: belong
-      POSTGRES_PASSWORD: belong_dev
-      POSTGRES_DB: fan_rewards_test
+  redis:
+    image: redis:7-alpine
+    container_name: fan_rewards_redis
+    restart: unless-stopped
     ports:
-      - "5433:5432"
+      - '6379:6379'
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - redisdata:/data
 
   rabbitmq:
-    image: rabbitmq:3-management-alpine
+    image: rabbitmq:3-management
+    container_name: fan_rewards_rabbitmq
+    restart: unless-stopped
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - '5672:5672'   # AMQP
+      - '15672:15672' # UI
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitdata:/var/lib/rabbitmq
 
 volumes:
   pgdata:
+  redisdata:
+  rabbitdata:
