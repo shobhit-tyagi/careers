@@ -45,4 +45,11 @@ export const config = {
   scheduler: {
     leaderboardJob: '*/30 * * * * *',
   },
+
+  cors: {
+    origins: (process.env.CORS_ORIGINS || '')
+        .split(',')
+        .map(o => o.trim())
+        .filter(Boolean),
+  },
 };

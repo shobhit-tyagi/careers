@@ -38,11 +38,25 @@ export const buildApp = async () => {
     },
   });
 
+  await app.register(cors, {
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true);
+
+      const allowed = config.cors.origins;
+
+      if (allowed.includes(origin)) {
+        return cb(null, true);
+      }
+
+      cb(new Error('Not allowed by CORS'), false);
+    },
+    credentials: true,
+  });
+
   app.addHook('onRequest', async (req, reply) => {
     reply.header('x-correlation-id', req.id);
   });
 
-  await app.register(cors, { origin: true });
   await app.register(helmet);
   await app.register(dbPlugin);
 
