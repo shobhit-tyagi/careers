@@ -114,8 +114,10 @@ export class ChallengeService {
         });
 
         await this.completionRepo.save(completion);
-        const channel = getChannel();
+        user.totalPoints = (user.totalPoints ?? 0) + pointsEarned;
+        await this.userRepo.save(user);
 
+        const channel = getChannel();
         channel.publish(
             EXCHANGE,
             'challenge.completed',
@@ -133,9 +135,6 @@ export class ChallengeService {
                 persistent: true,
             },
         );
-
-        user.totalPoints = (user.totalPoints ?? 0) + pointsEarned;
-        await this.userRepo.save(user);
 
         return {
             data: {

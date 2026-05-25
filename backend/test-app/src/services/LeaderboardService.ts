@@ -1,9 +1,9 @@
 import { dataSource } from '../plugins/db';
-import { User } from '../entities/User';
+import { Leaderboard } from '../entities/Leaderboard';
 import { ApiResponse, PaginatedResponse } from '../types/api';
 
 export class LeaderboardService {
-    private userRepo = dataSource.getRepository(User);
+    private repo = dataSource.getRepository(Leaderboard);
 
     async getTopFans(query: {
         page?: number;
@@ -20,29 +20,18 @@ export class LeaderboardService {
         const limit = Math.min(query.limit ?? 20, 50);
         const offset = (page - 1) * limit;
 
-        // rank computed in DB (handles ties correctly)
-        const ranked = await this.userRepo
-            .createQueryBuilder('u')
-            .select([
-                'u.id AS userId',
-                'u.displayName AS displayName',
-                'u.totalPoints AS points',
-                'RANK() OVER (ORDER BY u.totalPoints DESC) AS rank',
-            ])
-            .orderBy('u.totalPoints', 'DESC')
-            .addOrderBy('u.id', 'ASC') // deterministic tie-breaker
-            .offset(offset)
-            .limit(limit)
-            .getRawMany();
-
-        const total = await this.userRepo.count();
+        const [rows, total] = await this.repo.findAndCount({
+            order: { rank: 'ASC' },
+            skip: offset,
+            take: limit,
+        });
 
         return {
-            data: ranked.map((r) => ({
+            data: rows.map((r) => ({
                 userId: r.userId,
-                displayName: r.displayName ?? '',
-                points: Number(r.points),
-                rank: Number(r.rank),
+                displayName: r.displayName,
+                points: r.points,
+                rank: r.rank,
             })),
             meta: {
                 page,
@@ -52,7 +41,9 @@ export class LeaderboardService {
         };
     }
 
-    async getUserRank(userId: string): Promise<
+    async getUserRank(
+        userId: string,
+    ): Promise<
         ApiResponse<{
             rank: number | null;
             userId?: string;
@@ -60,18 +51,11 @@ export class LeaderboardService {
             points?: number;
         }>
     > {
-        const result = await this.userRepo
-            .createQueryBuilder('u')
-            .select([
-                'u.id AS userId',
-                'u.displayName AS displayName',
-                'u.totalPoints AS points',
-                'RANK() OVER (ORDER BY u.totalPoints DESC) AS rank',
-            ])
-            .where('u.id = :userId', { userId })
-            .getRawOne();
+        const user = await this.repo.findOne({
+            where: { userId },
+        });
 
-        if (!result) {
+        if (!user) {
             return {
                 data: { rank: null },
             };
@@ -79,10 +63,10 @@ export class LeaderboardService {
 
         return {
             data: {
-                rank: Number(result.rank),
-                userId: result.userId,
-                displayName: result.displayName,
-                points: Number(result.points),
+                rank: user.rank,
+                userId: user.userId,
+                displayName: user.displayName,
+                points: user.points,
             },
         };
     }

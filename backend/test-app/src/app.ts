@@ -14,6 +14,7 @@ import {healthRoutes} from "./routes/health";
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import {initRabbitMQ} from "./plugins/rabbitmq";
+import {startLeaderboardConsumer} from "./services/LeaderboardBuilderService";
 
 const buildApp = async () => {
   const app = Fastify({
@@ -26,6 +27,8 @@ const buildApp = async () => {
   await app.register(cors, { origin: true });
   await app.register(helmet);
   await app.register(dbPlugin);
+  await initRabbitMQ();
+  startLeaderboardConsumer();
 
   setupErrorHandler(app);
 
@@ -72,7 +75,6 @@ const buildApp = async () => {
 };
 
 const start = async () => {
-  await initRabbitMQ();
   const app = await buildApp();
 
   try {

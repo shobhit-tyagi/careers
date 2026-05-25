@@ -6,6 +6,7 @@ import {RewardRedemption} from "../entities/RewardRedemption";
 import {Reward} from "../entities/Reward";
 import {ChallengeCompletion} from "../entities/ChallengeCompletion";
 import {Challenge} from "../entities/Challenge";
+import {Leaderboard} from "../entities/Leaderboard";
 
 const dataSource = new DataSource({
     type: 'postgres',
@@ -21,6 +22,7 @@ const dataSource = new DataSource({
         ChallengeCompletion,
         Reward,
         RewardRedemption,
+        Leaderboard
     ],
     migrations: [
         'src/migrations/*.ts'
