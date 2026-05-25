@@ -14,8 +14,8 @@ import {healthRoutes} from "./routes/health";
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import {initRabbitMQ} from "./plugins/rabbitmq";
-import {startLeaderboardConsumer} from "./services/LeaderboardBuilderService";
 import {initRedis} from "./plugins/redis";
+import {startConsumers} from "./event/consumers";
 
 const buildApp = async () => {
   const app = Fastify({
@@ -30,7 +30,7 @@ const buildApp = async () => {
   await app.register(dbPlugin);
   await initRabbitMQ();
   await initRedis();
-  startLeaderboardConsumer();
+  startConsumers();
 
   setupErrorHandler(app);
 
