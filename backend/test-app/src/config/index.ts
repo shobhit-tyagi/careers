@@ -20,4 +20,11 @@ export const config = {
     accessExpiresIn: '15m',
     refreshExpiresIn: '7d',
   },
+  auth: {
+    maxFailedLoginAttempts: 3,
+    lockDurationMinutes: 15,
+  },
+  rabbitmq: {
+    url: process.env.RABBITMQ_URL ?? 'amqp://guest:guest@localhost:5672',
+  },
 };

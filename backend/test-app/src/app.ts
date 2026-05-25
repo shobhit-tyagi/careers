@@ -2,6 +2,18 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import { config } from './config';
+import {dbPlugin} from "./plugins/db";
+import {setupErrorHandler} from "./hooks/errorHandler";
+import authRoutes from "./routes/auth";
+import userRoutes from "./routes/user";
+import {authMiddleware} from "./middleware/auth";
+import challengeRoutes from "./routes/challenge";
+import leaderboardRoutes from "./routes/leaderboard";
+import rewardRoutes from "./routes/reward";
+import {healthRoutes} from "./routes/health";
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
+import {initRabbitMQ} from "./plugins/rabbitmq";
 
 const buildApp = async () => {
   const app = Fastify({
@@ -13,18 +25,54 @@ const buildApp = async () => {
   // Register plugins
   await app.register(cors, { origin: true });
   await app.register(helmet);
+  await app.register(dbPlugin);
 
-  // TODO: Register database plugin (see plugins/db.ts)
-  // TODO: Register auth middleware (see middleware/auth.ts)
-  // TODO: Register route plugins (see routes/)
+  setupErrorHandler(app);
+
+  // Swagger
+  app.register(swagger, {
+    openapi: {
+      info: {
+        title: 'FanRewards API',
+        description: 'API documentation',
+        version: '1.0.0',
+      },
+    },
+  });
+
+  app.register(swaggerUi, {
+    routePrefix: '/docs',
+  });
+
+  // Routes
+  await app.register(authRoutes, { prefix: '/api/auth' });
+  await app.register(async function (app) {
+    app.addHook('preHandler', authMiddleware);
+    app.register(userRoutes, { prefix: '/api/user' });
+  });
+  await app.register(async function (app) {
+    app.addHook('preHandler', authMiddleware);
+    app.register(challengeRoutes, { prefix: '/api/challenges' });
+  });
+  await app.register(async function (app) {
+    app.addHook('preHandler', authMiddleware);
+    app.register(rewardRoutes, { prefix: '/api/rewards' });
+  });
+  await app.register(async function (app) {
+    app.addHook('preHandler', authMiddleware);
+    app.register(leaderboardRoutes, { prefix: '/api/leaderboard' });
+  });
 
   // Health check
-  app.get('/health', async () => ({ status: 'ok' }));
+  await app.register(async function (app) {
+    app.register(healthRoutes, { prefix: '/health' });
+  })
 
   return app;
 };
 
 const start = async () => {
+  await initRabbitMQ();
   const app = await buildApp();
 
   try {
