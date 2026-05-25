@@ -17,12 +17,25 @@ import {initRabbitMQ} from "./plugins/rabbitmq";
 import {initRedis} from "./plugins/redis";
 import {startConsumers} from "./event/consumers";
 import {startLeaderboardScheduler} from "./jobs/scheduler";
+import { v4 as uuidv4 } from 'uuid';
 
 const buildApp = async () => {
   const app = Fastify({
     logger: {
-      level: config.logLevel,
+      transport: {
+        target: 'pino-pretty',
+      },
     },
+    genReqId: (req) => {
+      const incoming = req.headers['x-correlation-id'];
+      if (typeof incoming === 'string') {
+        return incoming;
+      }
+      return uuidv4();
+    },
+  });
+  app.addHook('onRequest', async (req, reply) => {
+    reply.header('x-correlation-id', req.id);
   });
 
   // Register plugins
