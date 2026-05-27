@@ -1,51 +1,86 @@
-# FanRewards API — Starter Project
+# FanRewards API
 
-This is the starter project for the Belong Backend Developer technical assessment.
+Backend API for a music fan engagement and rewards platform built with TypeScript, Fastify, PostgreSQL, Redis, RabbitMQ, and TypeORM.
 
-## Quick Start
+---
 
-```bash
-# 1. Copy env file
-cp .env.example .env
+## Tech Stack
 
-# 2. Start PostgreSQL
-docker compose up -d
+- Node.js
+- TypeScript
+- Fastify
+- PostgreSQL
+- TypeORM
+- Redis
+- RabbitMQ
+- JWT Authentication
+- Swagger / OpenAPI
+- Jest
 
-# 3. Install dependencies
-npm install
+---
 
-# 4. Generate and run migrations (after implementing entities)
-npm run migration:generate src/migrations/Init
-npm run migration:run
+## Features
 
-# 5. Seed the database (after implementing src/seed.ts)
-npm run seed
+- JWT authentication with refresh tokens
+- User profile management
+- Challenge completion system
+- Reward redemption system
+- Leaderboards
+- Redis-backed rate limiting
+- RabbitMQ event consumers
+- Scheduled leaderboard jobs
+- Swagger API documentation
+- PostgreSQL relational data model
+- Correlation ID tracing
+- Security headers via Helmet
 
-# 6. Start dev server
-npm run dev
+---
+
+## Project Structure
+
+```txt
+src/
+├── config/
+├── entities/
+├── event/
+│   └── consumers/
+├── hooks/
+├── jobs/
+├── middleware/
+├── migrations/
+├── plugins/
+├── routes/
+├── services/
+├── types/
+├── validators/
+├── app.ts
+├── start.ts
+├── shutdown.ts
+└── seed.ts
 ```
 
-Server runs on http://localhost:3000
+---
 
-## What's Provided
+## System Architecture
 
-- Project structure with Fastify + TypeScript + TypeORM configured
-- Docker Compose with PostgreSQL (dev + test databases)
-- Empty entity, route, service, and seed placeholders for you to implement
-- TypeScript strict mode enabled
+### Core Components
 
-## What You Need to Build
+| Component | Responsibility |
+|---|---|
+| Fastify | HTTP API server |
+| PostgreSQL | Primary relational database |
+| Redis | Rate limiting + leaderboard cache |
+| RabbitMQ | Async event processing |
+| Cron Jobs | Periodic leaderboard rebuilds |
+| JWT | Authentication |
 
-See the [full assessment README](../README.md) for detailed requirements.
+---
 
-## Scripts
+## Documentation Directory
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start dev server with hot reload |
-| `npm run build` | Compile TypeScript |
-| `npm start` | Run compiled output |
-| `npm run migration:run` | Run database migrations |
-| `npm run seed` | Seed database with sample data |
-| `npm test` | Run tests |
-| `npm run test:coverage` | Run tests with coverage |
+To make navigating the ecosystem simpler, the documentation has been organized into specialized modules:
+
+* [**Getting Started & Local Setup (SETUP.md)**](./docs/SETUP.md) — Clone, install dependencies, run infrastructure via Docker, seed data, and run tests.
+* [**Database & Infrastructure (DATABASE.md)**](./docs/DATABASE.md) — Entity relationships, Entity Relationship (ER) diagram, Redis cache mapping, and RabbitMQ messaging rules.
+* [**Authentication & Security (SECURITY.md)**](./docs/SECURITY.md) — JWT strategy, access/refresh token structures, and architectural security rules.
+* [**API Specification (API.md)**](./docs/API.md) — Detailed mapping of all endpoints running on `localhost:3000` alongside payload definitions and status codes.
