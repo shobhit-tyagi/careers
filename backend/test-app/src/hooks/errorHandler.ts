@@ -77,8 +77,7 @@ export const setupErrorHandler = (app: FastifyInstance) => {
 
 function isValidationError(error: unknown): error is ValidationError {
     return (
-        typeof error === 'object' &&
-        error !== null &&
+        error instanceof Error &&
         (error as any).name === 'ValidationError' &&
         Array.isArray((error as any).errors)
     );

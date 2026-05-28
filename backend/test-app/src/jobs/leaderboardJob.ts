@@ -1,8 +1,8 @@
-import { dataSource } from '../plugins/db';
 import { User } from '../entities/User';
-import { getRedis } from '../plugins/redis';
+import {DataSource} from "typeorm";
+import Redis from "ioredis";
 
-export async function rebuildLeaderboardJob() {
+export async function rebuildLeaderboardJob(dataSource: DataSource, redis: Redis) {
     const userRepo = dataSource.getRepository(User);
     const users = await userRepo.find({
         select: ['id', 'displayName', 'totalPoints'],
@@ -20,7 +20,6 @@ export async function rebuildLeaderboardJob() {
             rank: idx + 1,
         }));
 
-    const redis = getRedis();
     await redis.set(
         'leaderboard:snapshot',
         JSON.stringify(sorted),

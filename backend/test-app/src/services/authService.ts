@@ -1,4 +1,3 @@
-import { dataSource } from '../plugins/db';
 import { User } from '../entities/User';
 import { RefreshToken } from '../entities/RefreshToken';
 import * as bcrypt from 'bcrypt';
@@ -13,14 +12,18 @@ import {
 } from '../types/errors';
 import type { StringValue } from 'ms';
 import { ApiResponse } from '../types/api';
+import {DataSource} from "typeorm";
 
 const MAX_FAILED = config.auth.maxFailedLoginAttempts ?? 3;
 const LOCK_MINUTES = config.auth.lockDurationMinutes ?? 15;
 
 export class AuthService {
-    private userRepository = dataSource.getRepository(User);
+    constructor(
+        private readonly dataSource: DataSource
+    ) {}
+    private userRepository = this.dataSource.getRepository(User);
     private refreshTokenRepository =
-        dataSource.getRepository(RefreshToken);
+        this.dataSource.getRepository(RefreshToken);
 
     async register(email: string, password: string, displayName: string):
         Promise<ApiResponse<{ userId: string; accessToken: string; refreshToken: string }>> {

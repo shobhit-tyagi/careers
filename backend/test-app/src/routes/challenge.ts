@@ -1,12 +1,14 @@
 import {FastifyInstance} from 'fastify';
 import {Static} from '@sinclair/typebox';
-import {ChallengeService} from '../services/ChallengeService';
+import {ChallengeService} from '../services/challengeService';
 import {ChallengeValidator} from '../validators/challengeValidator';
 import {CompleteChallengeBody} from '../types/challenge';
+import {AuthService} from "../services/authService";
 
-const challengeService = new ChallengeService();
-
-export default async function challengeRoutes(fastify: FastifyInstance) {
+export default async function challengeRoutes(
+    fastify: FastifyInstance,
+    opts: { challengeService: ChallengeService }
+) {
     // Challenges
     fastify.get('', async (request, reply) => {
         const query = request.query as {
@@ -18,7 +20,7 @@ export default async function challengeRoutes(fastify: FastifyInstance) {
 
         ChallengeValidator.validateListQuery(query);
 
-        const result = await challengeService.listChallenges(query);
+        const result = await opts.challengeService.listChallenges(query);
         return reply.send(result);
     });
 
@@ -28,7 +30,7 @@ export default async function challengeRoutes(fastify: FastifyInstance) {
 
         ChallengeValidator.validateId(id);
 
-        const challenge = await challengeService.getChallengeById(id);
+        const challenge = await opts.challengeService.getChallengeById(id);
         return reply.send(challenge);
     });
 
@@ -43,7 +45,7 @@ export default async function challengeRoutes(fastify: FastifyInstance) {
             ChallengeValidator.validateId(id);
             ChallengeValidator.validateCompleteBody(body);
 
-            const result = await challengeService.completeChallenge(
+            const result = await opts.challengeService.completeChallenge(
                 userId,
                 id,
                 body,

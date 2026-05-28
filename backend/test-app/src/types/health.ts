@@ -10,8 +10,9 @@ export const HealthResponseBody = {
                     properties: {
                         db: { type: 'boolean' },
                         rabbitmq: { type: 'boolean' },
+                        redis: { type: 'boolean' },
                     },
-                    required: ['db', 'rabbitmq'],
+                    required: ['db', 'rabbitmq', 'redis'],
                 },
             },
             required: ['status', 'services'],

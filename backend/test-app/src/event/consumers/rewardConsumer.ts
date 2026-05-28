@@ -1,4 +1,5 @@
-import { EXCHANGE, getChannel } from '../../plugins/rabbitmq';
+import { EXCHANGE } from '../../plugins/rabbitmq';
+import {Channel} from "amqplib";
 
 type RewardRedeemedEvent = {
     userId: string;
@@ -8,37 +9,23 @@ type RewardRedeemedEvent = {
     timestamp: string;
 };
 
-let consumerTag: string | null = null;
+export async function startRewardConsumer(channel: Channel) {
+    await channel.assertQueue('reward.queue', { durable: true });
+    await channel.bindQueue('reward.queue', EXCHANGE, 'reward.redeemed');
 
-export function startRewardConsumer() {
-    const channel = getChannel();
-
-    channel.assertQueue('reward.queue', { durable: true });
-    channel.bindQueue('reward.queue', EXCHANGE, 'reward.redeemed');
-
-    channel.consume('reward.queue', async (msg) => {
+    const res = await channel.consume('reward.queue', async (msg) => {
         if (!msg) return;
 
         try {
-            const event: RewardRedeemedEvent = JSON.parse(msg.content.toString());
-
+            const event = JSON.parse(msg.content.toString());
             console.log('Consumed event:', event);
+
             channel.ack(msg);
         } catch (err) {
             console.error('reward consumer failed', err);
             channel.nack(msg, false, true);
         }
-    }).then((res) => {
-        consumerTag = res.consumerTag;
     });
-}
 
-export async function stopRewardConsumer() {
-    const channel = getChannel();
-
-    if (consumerTag) {
-        await channel.cancel(consumerTag);
-        consumerTag = null;
-        console.log('[RewardConsumer] stopped');
-    }
+    return res.consumerTag;
 }

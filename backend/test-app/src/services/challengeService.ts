@@ -1,19 +1,23 @@
-import { dataSource } from '../plugins/db';
 import { Challenge } from '../entities/Challenge';
 import { ChallengeCompletion } from '../entities/ChallengeCompletion';
 import { User } from '../entities/User';
 import { AppError } from '../types/errors';
 import { ApiResponse, PaginatedResponse } from '../types/api';
-import { getChannel, EXCHANGE } from '../plugins/rabbitmq';
+import {EXCHANGE, RabbitMQClient} from '../plugins/rabbitmq';
+import {DataSource} from "typeorm";
 
 const FULL_REWARD_THRESHOLD_PERCENT = Number(
     process.env.FULL_REWARD_THRESHOLD_PERCENT ?? 80,
 );
 
 export class ChallengeService {
-    private challengeRepo = dataSource.getRepository(Challenge);
-    private completionRepo = dataSource.getRepository(ChallengeCompletion);
-    private userRepo = dataSource.getRepository(User);
+    constructor(
+        private readonly dataSource: DataSource,
+        private readonly rabbitmq: RabbitMQClient
+    ) {}
+    private challengeRepo = this.dataSource.getRepository(Challenge);
+    private completionRepo = this.dataSource.getRepository(ChallengeCompletion);
+    private userRepo = this.dataSource.getRepository(User);
 
     async listChallenges(query: {
         page?: number;
@@ -117,7 +121,7 @@ export class ChallengeService {
         user.totalPoints = (user.totalPoints ?? 0) + pointsEarned;
         await this.userRepo.save(user);
 
-        const channel = getChannel();
+        const channel = this.rabbitmq.channel;
         channel.publish(
             EXCHANGE,
             'challenge.completed',

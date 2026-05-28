@@ -1,9 +1,18 @@
 import { buildApp } from './app';
-import { stopConsumers } from './event/consumers';
-import { stopLeaderboardScheduler } from './jobs/scheduler';
+import {startConsumers, stopConsumers} from './event/consumers';
+import {startLeaderboardScheduler, stopLeaderboardScheduler} from './jobs/scheduler';
+import {initRabbitMQ} from "./plugins/rabbitmq";
+import {initRedis} from "./plugins/redis";
+import {dataSource} from "./plugins/db";
 
 const start = async () => {
-    const { app, redis, rabbitmq } = await buildApp();
+    await dataSource.initialize();
+    const redis = await initRedis();
+    const rabbitmq = await initRabbitMQ();
+
+    const app = await buildApp({dataSource, rabbitmq, redis}, {});
+
+    startLeaderboardScheduler(dataSource, redis);
 
     let shuttingDown = false;
     const shutdown = async (signal: string) => {
@@ -13,10 +22,10 @@ const start = async () => {
         console.log(`[shutdown] ${signal}`);
 
         try {
-            await app.close();
             stopLeaderboardScheduler();
-            await stopConsumers();
+            await stopConsumers(rabbitmq.channel);
             await rabbitmq.close?.();
+            await app.close();
             await redis.quit?.();
             process.exit(0);
         } catch (err) {

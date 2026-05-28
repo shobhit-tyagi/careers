@@ -1,4 +1,5 @@
-import { EXCHANGE, getChannel } from '../../plugins/rabbitmq';
+import { EXCHANGE } from '../../plugins/rabbitmq';
+import {Channel} from "amqplib";
 
 type ChallengeCompletedEvent = {
     userId: string;
@@ -8,39 +9,23 @@ type ChallengeCompletedEvent = {
     timestamp: string;
 };
 
-let consumerTag: string | null = null;
+export async function startChallengeConsumer(channel: Channel) {
+    await channel.assertQueue('leaderboard.queue', { durable: true });
+    await channel.bindQueue('leaderboard.queue', EXCHANGE, 'challenge.completed');
 
-export function startChallengeConsumer() {
-    const channel = getChannel();
-
-    channel.assertQueue('leaderboard.queue', { durable: true });
-    channel.bindQueue('leaderboard.queue', EXCHANGE, 'challenge.completed');
-
-    channel.consume('leaderboard.queue', async (msg) => {
+    const res = await channel.consume('leaderboard.queue', async (msg) => {
         if (!msg) return;
 
         try {
-            const event: ChallengeCompletedEvent = JSON.parse(
-                msg.content.toString(),
-            );
-
+            const event = JSON.parse(msg.content.toString());
             console.log('Consumed event:', event);
+
             channel.ack(msg);
         } catch (err) {
             console.error('challenge consumer failed', err);
             channel.nack(msg, false, true);
         }
-    }).then((res) => {
-        consumerTag = res.consumerTag;
     });
-}
 
-export async function stopChallengeConsumer() {
-    const channel = getChannel();
-
-    if (consumerTag) {
-        await channel.cancel(consumerTag);
-        consumerTag = null;
-        console.log('[ChallengeConsumer] stopped');
-    }
+    return res.consumerTag;
 }

@@ -18,9 +18,12 @@ export async function initRedis() {
     return redis;
 }
 
-export function getRedis(): Redis {
-    if (!redis) {
-        throw new Error('Redis not initialized. Call initRedis() first.');
+export async function checkRedis(redis: Redis) {
+    if (!redis) return false;
+    try {
+        const res = await redis.ping();
+        return res === 'PONG';
+    } catch {
+        return false;
     }
-    return redis;
 }

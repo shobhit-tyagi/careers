@@ -1,19 +1,22 @@
-import { dataSource } from '../plugins/db';
 import { User } from '../entities/User';
 import { ChallengeCompletion } from '../entities/ChallengeCompletion';
 import { RewardRedemption } from '../entities/RewardRedemption';
 import { AppError } from '../types/errors';
 import { ApiResponse } from '../types/api';
+import {DataSource} from "typeorm";
 
 export class UserService {
+    constructor(
+        private readonly dataSource: DataSource
+    ) {}
     private userRepo =
-        dataSource.getRepository(User);
+        this.dataSource.getRepository(User);
     private completionRepo =
-        dataSource.getRepository(
+        this.dataSource.getRepository(
             ChallengeCompletion,
         );
     private redemptionRepo =
-        dataSource.getRepository(
+        this.dataSource.getRepository(
             RewardRedemption,
         );
 

@@ -1,16 +1,23 @@
-import { startRewardConsumer, stopRewardConsumer } from './rewardConsumer';
-import { startChallengeConsumer, stopChallengeConsumer } from './challengeConsumer';
+import { startRewardConsumer } from './rewardConsumer';
+import { startChallengeConsumer } from './challengeConsumer';
+import {Channel} from "amqplib";
 
-export function startConsumers() {
-    startChallengeConsumer();
-    startRewardConsumer();
+let challengeTag: string | null = null;
+let rewardTag: string | null = null;
+
+export async function startConsumers(channel: Channel) {
+    challengeTag = await startChallengeConsumer(channel);
+    rewardTag = await startRewardConsumer(channel);
 
     console.log('[Consumers] started');
 }
 
-export async function stopConsumers() {
-    await stopChallengeConsumer();
-    await stopRewardConsumer();
+export async function stopConsumers(channel: Channel) {
 
-    console.log('[Consumers] stopped');
+    if (challengeTag) await channel.cancel(challengeTag);
+    if (rewardTag) await channel.cancel(rewardTag);
+
+    challengeTag = null;
+    rewardTag = null;
+
 }

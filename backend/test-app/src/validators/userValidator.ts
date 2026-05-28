@@ -1,38 +1,35 @@
 import { ValidationError } from '../types/errors';
 
 export class UserValidator {
-    static validateDisplayName(displayName: string) {
-        const trimmed = displayName.trim();
-        if (trimmed.length < 2) {
+    static validateDisplayName(displayName: unknown) {
+        const errors: { field: string; message: string }[] = [];
+
+        if (typeof displayName !== 'string') {
             throw new ValidationError([
-                { field: 'displayName', message: 'Too short' },
+                { field: 'displayName', message: 'Must be a string' },
             ]);
         }
 
+        const trimmed = displayName.trim();
+
+        if (trimmed.length < 2) {
+            errors.push({ field: 'displayName', message: 'Too short' });
+        }
+
         if (trimmed.length > 100) {
-            throw new ValidationError([
-                { field: 'displayName', message: 'Too long' },
-            ]);
+            errors.push({ field: 'displayName', message: 'Too long' });
+        }
+
+        if (errors.length) {
+            throw new ValidationError(errors);
         }
 
         return trimmed;
     }
 
-    static validateUpdateProfile(payload: {
-        displayName?: string;
-    }) {
-        const errors: { field: string; message: string }[] = [];
+    static validateUpdateProfile(payload: { displayName?: unknown }) {
         if (payload.displayName !== undefined) {
-            try {
-                this.validateDisplayName(payload.displayName);
-            } catch (e) {
-                if (e instanceof ValidationError) {
-                    errors.push(...e.errors);
-                }
-            }
-        }
-        if (errors.length > 0) {
-            throw new ValidationError(errors);
+            this.validateDisplayName(payload.displayName);
         }
     }
 }

@@ -1,12 +1,13 @@
 import {FastifyInstance} from 'fastify';
-import {Static, Type} from '@sinclair/typebox';
-import {AuthService} from '../services/AuthService';
+import {Static} from '@sinclair/typebox';
+import {AuthService} from '../services/authService';
 import {AuthValidator} from '../validators/authValidator';
 import {RegisterBody, LoginBody, RefreshBody, LogoutBody} from '../types/auth';
 
-const authService = new AuthService();
-
-export default async function authRoutes(fastify: FastifyInstance) {
+export default async function authRoutes(
+    fastify: FastifyInstance,
+    opts: { authService: AuthService }
+) {
     // Register
     fastify.post<{ Body: Static<typeof RegisterBody> }>(
         '/register',
@@ -14,7 +15,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
         async (request, reply) => {
             const body = request.body as Static<typeof RegisterBody>;
             AuthValidator.validateRegisterBody(body);
-            const result = await authService.register(body.email, body.password, body.displayName);
+            const result = await opts.authService.register(body.email, body.password, body.displayName);
             return reply.status(201).send(result);
         }
     );
@@ -31,7 +32,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
     }, async (request, reply) => {
         const body = request.body as Static<typeof LoginBody>;
         AuthValidator.validateLoginBody(body);
-        const result = await authService.login(body.email, body.password);
+        const result = await opts.authService.login(body.email, body.password);
         return reply.send(result);
     });
 
@@ -49,7 +50,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
         async (request, reply) => {
             const body = request.body as Static<typeof RefreshBody>;
             AuthValidator.validateRefreshBody(body);
-            const result = await authService.refresh(body.refreshToken);
+            const result = await opts.authService.refresh(body.refreshToken);
             return reply.send(result);
         }
     );
@@ -61,7 +62,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
         async (request, reply) => {
             const body = request.body as Static<typeof LogoutBody>;
             AuthValidator.validateLogoutBody(body);
-            await authService.logout(body.refreshToken);
+            await opts.authService.logout(body.refreshToken);
             return reply.status(204).send();
         },
     );

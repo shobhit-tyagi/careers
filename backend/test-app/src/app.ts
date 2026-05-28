@@ -7,9 +7,6 @@ import swaggerUi from '@fastify/swagger-ui';
 import { v4 as uuidv4 } from 'uuid';
 
 import { config } from './config';
-import { dbPlugin } from './plugins/db';
-import { initRabbitMQ } from './plugins/rabbitmq';
-import { initRedis } from './plugins/redis';
 
 import { setupErrorHandler } from './hooks/errorHandler';
 
@@ -22,16 +19,46 @@ import { healthRoutes } from './routes/health';
 
 import { authMiddleware } from './middleware/auth';
 
-import { startConsumers } from './event/consumers';
-import {
-  startLeaderboardScheduler,
-} from './jobs/scheduler';
+import {AuthService} from "./services/authService";
+import {UserService} from "./services/userService";
+import {LeaderboardService} from "./services/leaderboardService";
+import {RewardService} from "./services/rewardService";
+import {ChallengeService} from "./services/challengeService";
 
-export const buildApp = async () => {
+import { DataSource } from 'typeorm';
+import Redis from 'ioredis';
+import {RabbitMQClient} from "./plugins/rabbitmq";
+import {HealthService} from "./services/healthService";
+import {startLeaderboardScheduler} from "./jobs/scheduler";
+import {dataSource} from "./plugins/db";
+import {startConsumers} from "./event/consumers";
+
+export type AppDependencies = {
+  dataSource: DataSource;
+  redis: Redis;
+  rabbitmq: RabbitMQClient;
+};
+
+export type AppOptions = {
+  disableRateLimit?: boolean;
+  disablePinoPrettyLogger?: boolean;
+  disableAuth?: boolean;
+  disableConsumers?: boolean;
+};
+
+export const buildApp = async (
+    deps: AppDependencies, opts: AppOptions
+) => {
+  const dataSource = deps.dataSource
+  const redis = deps.redis
+  const rabbitmq = deps.rabbitmq
+
   const app = Fastify({
-    logger: {
-      transport: { target: 'pino-pretty' },
-    },
+    logger: opts.disablePinoPrettyLogger
+        ? false
+        : {
+          transport: { target: 'pino-pretty' },
+        },
     genReqId: (req) => {
       const incoming = req.headers['x-correlation-id'];
       return typeof incoming === 'string' ? incoming : uuidv4();
@@ -70,21 +97,14 @@ export const buildApp = async () => {
   });
 
   await app.register(helmet);
-  await app.register(dbPlugin);
-
-  const rabbitmq = await initRabbitMQ();
-  const redis = await initRedis();
-
-  await app.register(rateLimit, {
-    redis,
-    global: false,
-  });
-
-  startConsumers();
-  startLeaderboardScheduler();
+  if (!opts.disableRateLimit) {
+    await app.register(rateLimit, {
+      redis,
+      global: false,
+    });
+  }
 
   setupErrorHandler(app);
-
   app.register(swagger, {
     openapi: {
       info: {
@@ -96,36 +116,43 @@ export const buildApp = async () => {
 
   app.register(swaggerUi, { routePrefix: '/docs' });
 
+  const authService = new AuthService(dataSource);
+  const userService = new UserService(dataSource);
+  const challengeService = new ChallengeService(dataSource, rabbitmq);
+  const rewardService = new RewardService(dataSource, rabbitmq);
+  const leaderboardService = new LeaderboardService(redis);
+  const healthService = new HealthService(dataSource, rabbitmq, redis);
+
   // Routes
-  await app.register(authRoutes, { prefix: '/api/auth' });
+  await app.register(authRoutes, { prefix: '/api/auth', authService });
 
   await app.register(async (app) => {
     app.addHook('preHandler', authMiddleware);
-    app.register(userRoutes, { prefix: '/api/user' });
-  });
-
-  await app.register(async (app) => {
-    app.addHook('preHandler', authMiddleware);
-    app.register(challengeRoutes, { prefix: '/api/challenges' });
+    app.register(userRoutes, { prefix: '/api/user', userService });
   });
 
   await app.register(async (app) => {
     app.addHook('preHandler', authMiddleware);
-    app.register(rewardRoutes, { prefix: '/api/rewards' });
+    app.register(challengeRoutes, { prefix: '/api/challenges', challengeService });
   });
 
   await app.register(async (app) => {
     app.addHook('preHandler', authMiddleware);
-    app.register(leaderboardRoutes, { prefix: '/api/leaderboard' });
+    app.register(rewardRoutes, { prefix: '/api/rewards', rewardService });
   });
 
   await app.register(async (app) => {
-    app.register(healthRoutes, { prefix: '/health' });
+    app.addHook('preHandler', authMiddleware);
+    app.register(leaderboardRoutes, { prefix: '/api/leaderboard', leaderboardService });
   });
 
-  return {
-    app,
-    redis,
-    rabbitmq,
-  };
+  await app.register(async (app) => {
+    app.register(healthRoutes, { prefix: '/health', healthService });
+  });
+
+  if (!opts.disableConsumers) {
+    await startConsumers(rabbitmq.channel);
+  }
+
+  return app;
 };

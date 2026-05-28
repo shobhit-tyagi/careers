@@ -67,6 +67,8 @@ npm run dev
 
 ## 6. Testing
 
+**Note**: Currently there exist integration tests for all the routes. Unit tests for edge cases have been intentionally left out from this assignment in interest of time.
+
 ### Run Tests
 ```bash
 npm test

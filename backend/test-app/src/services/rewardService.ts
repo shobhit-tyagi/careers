@@ -1,4 +1,3 @@
-import {dataSource} from '../plugins/db';
 import {Reward} from '../entities/Reward';
 import {
     RedemptionStatus,
@@ -7,12 +6,17 @@ import {
 import {User} from '../entities/User';
 import {AppError} from '../types/errors';
 import {ApiResponse} from '../types/api';
-import {EXCHANGE, getChannel} from "../plugins/rabbitmq";
+import {EXCHANGE, RabbitMQClient} from "../plugins/rabbitmq";
+import {DataSource} from "typeorm";
 
 export class RewardService {
-    private rewardRepo = dataSource.getRepository(Reward);
+    constructor(
+        private readonly dataSource: DataSource,
+        private readonly rabbitmq: RabbitMQClient
+    ) {}
+    private rewardRepo = this.dataSource.getRepository(Reward);
     private redemptionRepo =
-        dataSource.getRepository(RewardRedemption);
+        this.dataSource.getRepository(RewardRedemption);
 
     async list(): Promise<ApiResponse<Reward[]>> {
         const rewards = await this.rewardRepo.find({
@@ -31,8 +35,7 @@ export class RewardService {
             remainingPoints: number;
         }>
     > {
-        // 1. Do all DB work inside transaction only
-        const eventPayload = await dataSource.transaction(async (manager) => {
+        const eventPayload = await this.dataSource.transaction(async (manager) => {
             const userRepoTx = manager.getRepository(User);
             const rewardRepoTx = manager.getRepository(Reward);
             const redemptionRepoTx = manager.getRepository(RewardRedemption);
@@ -62,11 +65,9 @@ export class RewardService {
                 );
             }
 
-            // deduct points
             user.totalPoints -= reward.pointsCost;
             await userRepoTx.save(user);
 
-            // create redemption
             const redemption = await redemptionRepoTx.save(
                 redemptionRepoTx.create({
                     user,
@@ -85,9 +86,7 @@ export class RewardService {
             };
         });
 
-        // 2. Publish AFTER transaction commit (critical fix)
-        const channel = getChannel();
-
+        const channel = this.rabbitmq.channel
         channel.publish(
             EXCHANGE,
             'reward.redeemed',

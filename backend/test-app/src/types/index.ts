@@ -28,7 +28,7 @@ export interface LeaderboardEntry {
 // Extend Fastify's request type with authenticated user
 declare module 'fastify' {
   interface FastifyRequest {
-    user?: {
+    user: {
       userId: string;
     };
   }

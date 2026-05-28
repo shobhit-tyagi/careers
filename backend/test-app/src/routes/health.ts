@@ -1,10 +1,9 @@
 import { FastifyInstance } from 'fastify';
-import { HealthService } from '../services/HealthService';
+import { HealthService } from '../services/healthService';
 import {HealthResponseBody} from "../types/health";
 
-export async function healthRoutes(fastify: FastifyInstance) {
-    const service = new HealthService();
-
+export async function healthRoutes(fastify: FastifyInstance,
+                                   opts: { healthService: HealthService }) {
     fastify.get('', {
         schema: {
             response: {
@@ -12,7 +11,7 @@ export async function healthRoutes(fastify: FastifyInstance) {
             },
         },
     }, async (req, reply) => {
-        const result = await service.check();
+        const result = await opts.healthService.check();
 
         if (result.data.status !== 'ok') {
             return reply.code(503).send(result);
